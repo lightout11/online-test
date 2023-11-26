@@ -21,7 +21,7 @@ const useStyles = makeStyles({
 
 export default function Choices(props: Partial<ComboboxProps>) {
   const comboId = useId("combo-default");
-  const options = ['1', '2', '3', '4'];
+  const options = ["1", "2", "3", "4"];
   const styles = useStyles();
   return (
     <div className={styles.root}>
@@ -39,4 +39,4 @@ export default function Choices(props: Partial<ComboboxProps>) {
       </Combobox>
     </div>
   );
-};
+}
