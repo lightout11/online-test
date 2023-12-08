@@ -14,11 +14,21 @@ export async function PUT(
 ) {
   const url = process.env.BACKEND_URL + "/questions/" + params.question_id;
 
+  console.log(url);
+  console.log(req.body);
+
+  const req_body = await req.json();
+  console.log(req_body);
+
   const res = await fetch(url, {
     method: req.method,
-    headers: req.headers,
-    body: req.body,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(req_body),
   });
+
+  // console.log(res);
 
   return res;
 }

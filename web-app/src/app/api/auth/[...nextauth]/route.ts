@@ -10,7 +10,7 @@ const handler = NextAuth({
         password: { label: "Mật khẩu", type: "password" },
       },
       async authorize(credentials, req) {
-        const res = await fetch("/auth/login", {
+        const res = await fetch(process.env.BACKEND_URL + "/users/user", {
           method: "POST",
           body: JSON.stringify(credentials),
           headers: { "Content-Type": "application/json" },

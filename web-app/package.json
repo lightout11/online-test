@@ -11,14 +11,16 @@
   "dependencies": {
     "@fluentui/react-components": "^9.39.0",
     "@fluentui/react-datepicker-compat": "^0.4.4",
+    "@fluentui/react-icons": "^2.0.223",
     "@fluentui/react-motion-preview": "^0.5.2",
     "@fluentui/react-search-preview": "^0.1.31",
     "@fluentui/react-timepicker-compat-preview": "^0.1.2",
-    "next": "14.0.2",
+    "next": "^14.0.3",
     "next-auth": "^4.24.4",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.48.2",
+    "react-hot-toast": "^2.4.1",
     "swr": "^2.2.4"
   },
   "devDependencies": {

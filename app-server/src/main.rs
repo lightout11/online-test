@@ -1,7 +1,10 @@
 use actix_web::{web, App, HttpServer};
 use dotenvy::dotenv;
 use mongodb::Client;
-use services::questions::{create_question, delete_question, get_questions};
+use services::{
+    questions::{create_question, delete_question, get_question, get_questions, update_question},
+    users::{create_user, get_user},
+};
 use std::env;
 
 mod models;
@@ -26,15 +29,19 @@ async fn main() -> std::io::Result<()> {
         Ok(p) => p.parse::<u16>().unwrap(),
         Err(_) => panic!(),
     };
-    
 
     HttpServer::new(move || {
-        App::new().app_data(web::Data::new(db.clone())).service(
-            web::scope("/questions")
-                .service(create_question)
-                .service(get_questions)
-                .service(delete_question),
-        )
+        App::new()
+            .app_data(web::Data::new(db.clone()))
+            .service(
+                web::scope("/questions")
+                    .service(create_question)
+                    .service(get_questions)
+                    .service(get_question)
+                    .service(update_question)
+                    .service(delete_question),
+            )
+            .service(web::scope("/users").service(create_user).service(get_user))
     })
     .bind((host, port))?
     .run()

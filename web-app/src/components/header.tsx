@@ -1,14 +1,57 @@
 "use client";
 
-import { Label, Button, TabList, Tab } from "@fluentui/react-components";
-import { SearchBox } from "@fluentui/react-search-preview";
+import {
+  Label,
+  Button,
+  TabList,
+  Tab,
+  Persona,
+} from "@fluentui/react-components";
+import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  const renderProfile = () => {
+    
+    if (session) {
+      return (
+        <div className="flex flex-row p-2 space-x-2">
+          <Persona name={session.user?.email} />
+          <Button onClick={() => signOut()}>Đăng xuất</Button>
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex flex-row">
+          <div className="p-2">
+            <Button
+              onClick={() => {
+                // router.push("/auth/login");
+                signIn();
+              }}
+            >
+              Đăng nhập
+            </Button>
+          </div>
+          <div className="p-2">
+            <Button
+              onClick={() => {
+                router.push("/register");
+              }}
+            >
+              Đăng ký
+            </Button>
+          </div>
+        </div>
+      );
+    }
+  };
 
   return (
-    <header className="flex justify-center flex-row p-4 items-center">
+    <header className="flex justify-center flex-row p-2 items-center">
       <Label
         onClick={() => {
           router.push("/");
@@ -29,24 +72,7 @@ export default function Header() {
           Câu hỏi
         </Tab>
       </TabList>
-      <div className="p-2">
-        <Button
-          onClick={() => {
-            router.push("/auth/login");
-          }}
-        >
-          Đăng nhập
-        </Button>
-      </div>
-      <div className="p-2">
-        <Button
-          onClick={() => {
-            router.push("/register");
-          }}
-        >
-          Đăng ký
-        </Button>
-      </div>
+      {renderProfile()}
     </header>
   );
 }

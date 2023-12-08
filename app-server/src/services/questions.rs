@@ -1,5 +1,5 @@
-use actix_web::{delete, get, post, web, HttpResponse};
-use bson::{doc, Document};
+use actix_web::{delete, get, post, put, web, HttpResponse};
+use bson::{doc, oid::ObjectId, Document};
 use futures::TryStreamExt;
 use mongodb::Database;
 
@@ -8,10 +8,7 @@ use crate::models::question::Question;
 #[post("/new_question")]
 async fn create_question(db: web::Data<Database>, data: web::Json<Document>) -> HttpResponse {
     let question = data.into_inner();
-    let result = db
-        .collection::<Document>("questions")
-        .insert_one(question, None)
-        .await;
+    let result = db.collection("questions").insert_one(question, None).await;
     match result {
         Ok(_) => HttpResponse::Ok().json(""),
         Err(_) => HttpResponse::Forbidden().json(""),
@@ -32,11 +29,12 @@ async fn get_questions(db: web::Data<Database>) -> HttpResponse {
 #[get("/{id}")]
 async fn get_question(path: web::Path<String>, db: web::Data<Database>) -> HttpResponse {
     let id = path.into_inner();
+    let object_id = ObjectId::parse_str(id).unwrap();
     let query = db
         .collection::<Question>("questions")
         .find_one(
             doc! {
-                "_id": id
+                "_id": object_id
             },
             None,
         )
@@ -46,14 +44,40 @@ async fn get_question(path: web::Path<String>, db: web::Data<Database>) -> HttpR
     HttpResponse::Ok().json(query)
 }
 
+#[put("/{id}")]
+async fn update_question(
+    path: web::Path<String>,
+    db: web::Data<Database>,
+    data: web::Json<Document>,
+) -> HttpResponse {
+    let id = path.into_inner();
+    let object_id = ObjectId::parse_str(id).unwrap();
+    let updating = data.into_inner();
+    let query = db
+        .collection::<Question>("questions")
+        .update_one(
+            doc! {
+                "_id": object_id
+            },
+            doc! {
+                "$set": updating
+            },
+            None,
+        )
+        .await
+        .unwrap();
+    HttpResponse::Ok().json(query)
+}
+
 #[delete("/{question_id}")]
 async fn delete_question(path: web::Path<String>, db: web::Data<Database>) -> HttpResponse {
     let question_id = path.into_inner();
+    let object_id = ObjectId::parse_str(&question_id).unwrap();
     let query = db
         .collection::<Question>("questions")
         .delete_one(
             doc! {
-                "question_id": question_id
+                "_id": object_id
             },
             None,
         )
