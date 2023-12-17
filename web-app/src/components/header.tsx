@@ -7,12 +7,12 @@ import {
   Tab,
   Persona,
 } from "@fluentui/react-components";
-import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const renderProfile = () => {
     

@@ -16,9 +16,13 @@ const handler = NextAuth({
           headers: { "Content-Type": "application/json" },
         });
 
+        if (!res.ok) {
+          return null
+        }
+
         const user = await res.json();
 
-        if (res.ok && user) {
+        if (user) {
           return user;
         }
 

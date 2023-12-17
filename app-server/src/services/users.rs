@@ -1,5 +1,5 @@
 use actix_web::{post, web, HttpResponse};
-use bson::{doc, DateTime, Document};
+use bson::{doc, DateTime};
 use mongodb::Database;
 
 use crate::models::user::{NewUser, User, UserCredentials, UserProfile};

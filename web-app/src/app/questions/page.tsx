@@ -1,11 +1,17 @@
 "use client";
 
-import Header from "@/components/header";
-import QuestionTable from "@/components/question-table";
+// import Header from "@/components/header";
 import { Button, Divider, Label, makeStyles } from "@fluentui/react-components";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { Add16Filled, Delete16Filled } from "@fluentui/react-icons";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+
+const QuestionTableC = dynamic(() => import("@/components/question-table"), {
+  ssr: false,
+});
+
+const HeaderC = dynamic(() => import("@/components/header"), { ssr: false });
 
 const useStyles = makeStyles({
   divider: {
@@ -20,7 +26,7 @@ export default function Home() {
   return (
     <FluentProvider theme={webLightTheme}>
       <main className="flex min-h-screen min-w-full flex-col items-center p-2">
-        <Header />
+        <HeaderC />
         <Divider className={styles.divider} />
         <div className="flex flex-col flex-grow h-full min-w-full items-center">
           <div className="min-w-full p-2 items-center space-x-2">
@@ -35,7 +41,7 @@ export default function Home() {
               </Button>
               <Button icon={<Delete16Filled />}>Xóa</Button>
             </div>
-            <QuestionTable />
+            <QuestionTableC />
           </div>
           {/* <div className="shrink p-4 items-end">Right</div> */}
         </div>
