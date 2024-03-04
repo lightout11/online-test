@@ -1,14 +1,14 @@
 "use client";
 
 import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
   Navbar,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
   User,
 } from "@nextui-org/react";
 import { Session } from "next-auth";
@@ -45,7 +45,9 @@ export default function CustomNavbar({ session }: { session: Session }) {
               <User as="button" name={session.user?.name} />
             </DropdownTrigger>
             <DropdownMenu variant="flat">
-              <DropdownItem as={Link} href="/account" key="settings">Cài đặt tài khoản</DropdownItem>
+              <DropdownItem as={Link} href="/account" key="settings">
+                Cài đặt tài khoản
+              </DropdownItem>
               <DropdownItem key="logout" onPress={async () => await signOut()}>
                 Đăng xuất
               </DropdownItem>

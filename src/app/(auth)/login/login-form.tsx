@@ -1,7 +1,7 @@
 import { login } from "@/lib/login";
 import { Button, Input, Spacer } from "@nextui-org/react";
 
-export default async function LoginForm() {  
+export default async function LoginForm() {
   return (
     <form action={login}>
       <Input isRequired name="email" label="Email" />

@@ -18,7 +18,7 @@ export const {
       },
       async authorize(credentials, request) {
         console.log("auth");
-        const user = await prisma.user.findUnique({
+        const user = await prisma.user.findFirst({
           select: {
             id: true,
             email: true,
@@ -33,7 +33,7 @@ export const {
         if (!user) return null;
         const isPasswordVerified = await verify(
           user.passwordHash,
-          credentials.password as string
+          credentials.password as string,
         );
         if (!isPasswordVerified) return null;
         else
@@ -45,4 +45,21 @@ export const {
       },
     }),
   ],
+  session: {
+    strategy: "jwt",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string;
+      }
+      return session;
+    },
+  },
 });

@@ -26,5 +26,6 @@ export async function login(formData: FormData) {
     }
   }
 
+  revalidatePath("/home");
   redirect("/home");
 }

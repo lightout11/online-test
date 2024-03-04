@@ -10,7 +10,7 @@ import {
 import { redirect } from "next/navigation";
 
 export default async function Home() {
-  const session = await auth(); 
+  const session = await auth();
   if (session) redirect("/home");
 
   return (
@@ -41,7 +41,7 @@ export default async function Home() {
           </NavbarItem>
         </NavbarContent>
         <NavbarContent justify="end">
-          <NavbarItem className="hidden lg:flex">
+          <NavbarItem className="lg:flex">
             <Link href="/login">Đăng nhập</Link>
           </NavbarItem>
           <NavbarItem>

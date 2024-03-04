@@ -22,13 +22,18 @@ export default function RegistrationForm() {
   const [roles, setRoles] = useState<string[]>([]);
   const [formState, formAction] = useFormState(
     createNewUser,
-    initialState
+    initialState,
   ) as any;
 
   function renderError() {
     if (Object.keys(formState.messages).length !== 0) {
       for (let field in formState.messages) {
-        return <Chip color="danger">{formState.messages[field]}</Chip>;
+        return (
+          <>
+            <Chip color="danger">{formState.messages[field]}</Chip>
+            <Spacer />
+          </>
+        );
       }
     }
     return null;

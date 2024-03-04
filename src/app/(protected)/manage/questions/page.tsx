@@ -1,7 +1,10 @@
-import { Button, Link } from "@nextui-org/react";
+import { Button, Link, Spacer } from "@nextui-org/react";
+import QuestionTable from "./question-table";
 
 export default async function Page() {
-    return (
-        <Button as={Link} href="/manage/questions/new">Tạo câu hỏi</Button>
-    )
+  return (
+    <div className="p-2">
+      <QuestionTable />
+    </div>
+  );
 }

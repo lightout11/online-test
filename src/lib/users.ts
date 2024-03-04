@@ -1,10 +1,11 @@
 "use server";
 
-import { hash } from "argon2";
+import { hash, verify } from "argon2";
 import { z } from "zod";
 import prisma from "./prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
 
 interface User {
   firstName: string;
@@ -16,11 +17,20 @@ interface User {
   roles: string[];
 }
 
-const schema = z.object({
+const registrationSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   email: z.string().email(),
   password: z.string().min(6),
+  gender: z.string(),
+  dateOfBirth: z.date(),
+  roles: z.array(z.string()),
+});
+
+const userInfoSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string().email(),
   gender: z.string(),
   dateOfBirth: z.date(),
   roles: z.array(z.string()),
@@ -36,12 +46,12 @@ export async function createNewUser(prevState: any, formData: FormData) {
     gender: formData.get("gender"),
     roles: formData.getAll("roles"),
   };
-  const validated = schema.safeParse(newUser);
+  const validated = registrationSchema.safeParse(newUser);
   if (!validated.success) {
     console.log(validated.error.flatten().fieldErrors);
     return {
-      messages: validated.error.flatten().fieldErrors
-    }
+      messages: validated.error.flatten().fieldErrors,
+    };
   }
   const existedUser = await prisma.user.findUnique({
     select: {
@@ -55,7 +65,9 @@ export async function createNewUser(prevState: any, formData: FormData) {
     return {
       message: "Email đã tồn tại, vui lòng chọn email khác",
     };
-  const passwordHash = await hash(formData.get("password") as unknown as string);
+  const passwordHash = await hash(
+    formData.get("password") as unknown as string,
+  );
   newUser.passwordHash = passwordHash;
   delete newUser.password;
   await prisma.user.create({
@@ -63,4 +75,96 @@ export async function createNewUser(prevState: any, formData: FormData) {
   });
   revalidatePath("/login");
   redirect("/login");
+}
+
+export async function updateUserInfo(prevState: any, formData: FormData) {
+  const session = await auth();
+  if (!session) redirect("/login");
+
+  const user: any = {
+    firstName: formData.get("firstName"),
+    lastName: formData.get("lastName"),
+    email: formData.get("email"),
+    gender: formData.get("gender"),
+    dateOfBirth: new Date(formData.get("dateOfBirth") as unknown as string),
+    roles: formData.getAll("roles"),
+  };
+  const validated = userInfoSchema.safeParse(user);
+  console.log(validated);
+  if (!validated.success) {
+    console.log(validated.error);
+    return {
+      messages: validated.error.flatten().fieldErrors,
+    };
+  }
+  await prisma.user.update({
+    where: {
+      id: session.user?.id,
+    },
+    data: user,
+  });
+  return {
+    messages: { success: "Thay đổi thành công" },
+  };
+}
+
+export async function getUserInfo() {
+  const session = await auth();
+  if (!session) redirect("/login");
+
+  const user = await prisma.user.findFirst({
+    where: {
+      id: session.user?.id,
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      email: true,
+      gender: true,
+      dateOfBirth: true,
+      roles: true,
+    },
+  });
+  return user;
+}
+
+export async function updatePassword(prevState: any, formData: FormData) {
+  const session = await auth();
+  if (!session) redirect("/login");
+
+  const currentPassword = formData.get("currentPassword") as unknown as string;
+  const user = await prisma.user.findFirst({
+    select: {
+      passwordHash: true,
+    },
+    where: {
+      id: session.user?.id,
+    },
+  });
+  const verified = await verify(
+    user?.passwordHash as unknown as string,
+    currentPassword,
+  );
+  if (!verified)
+    return {
+      messages: {
+        currentPassword: "Mật khẩu hiện tại sai",
+      },
+    };
+  await prisma.user.update({
+    where: {
+      id: session.user?.id,
+    },
+    data: {
+      updatedAt: new Date(),
+      passwordHash: await hash(
+        formData.get("newPassword") as unknown as string,
+      ),
+    },
+  });
+  return {
+    messages: {
+      success: "Thay đổi thành công",
+    },
+  };
 }
