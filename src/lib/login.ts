@@ -8,7 +8,6 @@ import { redirect } from "next/navigation";
 export async function login(formData: FormData) {
   const email = formData.get("email") as unknown as string;
   const password = formData.get("password") as unknown as string;
-  console.log(email + " " + password);
 
   try {
     await signIn("credentials", {

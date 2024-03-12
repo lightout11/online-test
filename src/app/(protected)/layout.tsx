@@ -7,7 +7,6 @@ import { Divider } from "@nextui-org/react";
 export default async function Layout({ children }: { children: ReactNode }) {
   const session = await auth();
   if (!session) redirect("/login");
-  console.log(session);
 
   return (
     <main className="text-foreground bg-background">

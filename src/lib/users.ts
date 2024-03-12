@@ -48,7 +48,6 @@ export async function createNewUser(prevState: any, formData: FormData) {
   };
   const validated = registrationSchema.safeParse(newUser);
   if (!validated.success) {
-    console.log(validated.error.flatten().fieldErrors);
     return {
       messages: validated.error.flatten().fieldErrors,
     };
@@ -66,7 +65,7 @@ export async function createNewUser(prevState: any, formData: FormData) {
       message: "Email đã tồn tại, vui lòng chọn email khác",
     };
   const passwordHash = await hash(
-    formData.get("password") as unknown as string,
+    formData.get("password") as unknown as string
   );
   newUser.passwordHash = passwordHash;
   delete newUser.password;
@@ -90,9 +89,7 @@ export async function updateUserInfo(prevState: any, formData: FormData) {
     roles: formData.getAll("roles"),
   };
   const validated = userInfoSchema.safeParse(user);
-  console.log(validated);
   if (!validated.success) {
-    console.log(validated.error);
     return {
       messages: validated.error.flatten().fieldErrors,
     };
@@ -143,7 +140,7 @@ export async function updatePassword(prevState: any, formData: FormData) {
   });
   const verified = await verify(
     user?.passwordHash as unknown as string,
-    currentPassword,
+    currentPassword
   );
   if (!verified)
     return {
@@ -158,7 +155,7 @@ export async function updatePassword(prevState: any, formData: FormData) {
     data: {
       updatedAt: new Date(),
       passwordHash: await hash(
-        formData.get("newPassword") as unknown as string,
+        formData.get("newPassword") as unknown as string
       ),
     },
   });

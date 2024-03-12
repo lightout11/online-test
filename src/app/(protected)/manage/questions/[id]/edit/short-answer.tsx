@@ -1,25 +1,27 @@
-"use client";
-
-import { createShortAnswerQuestion } from "@/lib/questions";
+import { updateShortAnswerQuestion } from "@/lib/questions";
 import {
-  Button,
+  Switch,
+  Spacer,
+  Input,
+  RadioGroup,
+  Radio,
+  Textarea,
   Card,
   CardBody,
+  Button,
   Image,
-  Input,
-  Radio,
-  RadioGroup,
-  Spacer,
-  Switch,
-  Textarea,
 } from "@nextui-org/react";
 import { ChangeEvent, useState } from "react";
 
-export default function NewShortAnswerForm() {
+export default function ShortAnswer({ question }: { question: any }) {
+  const [content, setContent] = useState(question.content);
+  const [difficulty, setDifficulty] = useState(question.difficulty);
+  const [isPublic, setIsPublic] = useState<any>(question.isPublic);
+  const [categories, setCategories] = useState(question.categories);
+  const [answer, setAnswer] = useState(question.answer);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [isPublic, setIsPublic] = useState<any>(false);
 
   function changeImageFile(event: ChangeEvent<HTMLInputElement>): void {
     if (!event.target.files || event.target.files.length == 0) {
@@ -46,11 +48,12 @@ export default function NewShortAnswerForm() {
   }
 
   return (
-    <form action={createShortAnswerQuestion}>
+    <form action={updateShortAnswerQuestion}>
+      <input type="hidden" name="id" value={question.id} />
       <Switch
         name="isPublic"
-        isSelected={isPublic}
         value={isPublic}
+        isSelected={isPublic}
         onValueChange={setIsPublic}
       >
         Câu hỏi công khai
@@ -61,6 +64,7 @@ export default function NewShortAnswerForm() {
         name="categories"
         label="Danh mục"
         placeholder="Nhập danh mục"
+        value={categories}
       />
       <Spacer />
       <RadioGroup
@@ -69,6 +73,8 @@ export default function NewShortAnswerForm() {
         label="Độ khó"
         orientation="horizontal"
         defaultValue="easy"
+        value={difficulty}
+        onValueChange={setDifficulty}
       >
         <Radio value="easy">Dễ</Radio>
         <Radio value="medium">Trung Bình</Radio>
@@ -80,6 +86,8 @@ export default function NewShortAnswerForm() {
         isRequired
         label="Câu hỏi"
         placeholder="Nhập nội dung câu hỏi"
+        value={content}
+        onValueChange={setContent}
       />
       <Spacer />
       <Card>
@@ -142,9 +150,15 @@ export default function NewShortAnswerForm() {
         </CardBody>
       </Card>
       <Spacer />
-      <Input isRequired name="answer" label="Đáp án đúng" />
+      <Input
+        isRequired
+        name="answer"
+        label="Đáp án đúng"
+        value={answer}
+        onValueChange={setAnswer}
+      />
       <Spacer />
-      <Button type="submit">Tạo câu hỏi</Button>
+      <Button type="submit">Lưu thay đổi</Button>
     </form>
   );
 }

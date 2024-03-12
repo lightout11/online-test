@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
       difficulty: true,
       categories: true,
       isPublic: true,
+      userId: true,
     },
     where: {
       OR: [

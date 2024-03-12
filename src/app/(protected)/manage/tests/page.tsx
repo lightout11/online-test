@@ -1,12 +1,12 @@
-import QuestionTable from "./question-table";
+import TestTable from "./test-table";
 import { auth } from "@/auth";
 
 export default async function Page() {
   const session = await auth();
-  
+
   return (
     <div className="p-2">
-      <QuestionTable session={session} />
+      <TestTable session={session} />
     </div>
   );
 }

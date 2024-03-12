@@ -29,12 +29,12 @@ export default function CustomNavbar({ session }: { session: Session }) {
         </NavbarItem>
         <NavbarItem>
           <Link href="/manage/questions" color="foreground" aria-current="page">
-            Quản lý câu hỏi
+            Câu hỏi
           </Link>
         </NavbarItem>
         <NavbarItem>
           <Link color="foreground" href="/manage/tests">
-            Quản lý bài thi
+            Kỳ thi
           </Link>
         </NavbarItem>
       </NavbarContent>

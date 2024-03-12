@@ -17,7 +17,6 @@ export const {
         password: { label: "Mật khẩu", type: "password" },
       },
       async authorize(credentials, request) {
-        console.log("auth");
         const user = await prisma.user.findFirst({
           select: {
             id: true,
