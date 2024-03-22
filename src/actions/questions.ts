@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { writeFile } from "fs/promises";
 import { redirect } from "next/navigation";
-import prisma from "./prisma";
+import prisma from "../libs/prisma";
 import { revalidatePath } from "next/cache";
 import { existsSync, mkdirSync } from "fs";
 
@@ -170,4 +170,45 @@ export async function deleteQuestions(ids: string[]) {
 
   revalidatePath("/manage/questions");
   redirect("/manage/questions");
+}
+
+export async function getTestQuestions(testId: string) {
+  const session = await auth();
+  if (!session) redirect("/login");
+
+  return await prisma.question.findMany({
+    select: {
+      id: true,
+      type: true,
+      content: true,
+      choices: true,
+    },
+    where: {
+      testIds: {
+        has: testId,
+      },
+    },
+  });
+}
+
+export async function getTestQuestionsAndAnswers(testId: string) {
+  const session = await auth();
+  if (!session) redirect("/login");
+
+  return await prisma.question.findMany({
+    select: {
+      id: true,
+      type: true,
+      content: true,
+      choices: true,
+      answer: true,
+      correctChoice: true,
+      correctChoices: true,
+    },
+    where: {
+      testIds: {
+        has: testId,
+      },
+    },
+  });
 }

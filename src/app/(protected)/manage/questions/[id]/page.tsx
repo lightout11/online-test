@@ -1,4 +1,4 @@
-import { getQuestionById } from "@/lib/questions";
+import { getQuestionById } from "@/actions/questions";
 import ShortAnswer from "./short-answer";
 
 export default async function Page({ params }: { params: { id: string } }) {

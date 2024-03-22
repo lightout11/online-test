@@ -16,9 +16,9 @@ export async function GET(req: NextRequest) {
       endDateTime: true,
       userId: true,
     },
-    where: {
-      userId: session?.user?.id,
-    },
+    // where: {
+    //   userId: session?.user?.id,
+    // },
   });
 
   return NextResponse.json(tests);

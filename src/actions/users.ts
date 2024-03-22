@@ -2,7 +2,7 @@
 
 import { hash, verify } from "argon2";
 import { z } from "zod";
-import prisma from "./prisma";
+import prisma from "../libs/prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";

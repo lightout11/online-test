@@ -2,7 +2,6 @@
 
 import {
   Button,
-  ButtonGroup,
   Chip,
   Dropdown,
   DropdownItem,
@@ -25,6 +24,8 @@ import useSWR from "swr";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { deleteQuestion, deleteQuestions } from "@/actions/questions";
 import { useRouter } from "next/navigation";
+import { removeQuestionsFromTest } from "@/actions/tests";
+import toast from "react-hot-toast";
 
 const columns = [
   {
@@ -73,9 +74,15 @@ const questionType: any = {
 
 const fetcher = (url: any) => fetch(url).then((res) => res.json());
 
-export default function QuestionTable({ session }: { session: any }) {
+export default function TestQuestionTable({
+  session,
+  testId,
+}: {
+  session: any;
+  testId: string;
+}) {
   const router = useRouter();
-  const { data, isLoading } = useSWR("/api/questions", fetcher);
+  const { data, isLoading } = useSWR(`/api/tests/${testId}/questions`, fetcher);
   const [rows, setRows] = useState([]);
   const [contentFilter, setContentFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState<Selection | any>("all");
@@ -164,22 +171,20 @@ export default function QuestionTable({ session }: { session: any }) {
   }, [filteredItems, sortDescriptor]);
 
   const topContent = useMemo(() => {
-    function handleDeleteQuestion() {
-      deleteQuestions(Array.from(selectedItems)).then(() => {
-        window.location.reload();
+    function handleRemove() {
+      removeQuestionsFromTest(testId, Array.from(selectedItems)).then((res) => {
+        if (res.messages.success) {
+          toast.success(res.messages.success);
+          window.location.reload();
+        }
       });
     }
 
     return (
       <div>
-        <ButtonGroup>
-          <Button as={Link} color="primary" href="/manage/questions/new">
-            Thêm câu hỏi
-          </Button>
-          <Button color="danger" onPress={handleDeleteQuestion}>
-            Xóa các câu hỏi
-          </Button>
-        </ButtonGroup>
+        <Button color="danger" onPress={handleRemove}>
+          Xóa khỏi danh sách
+        </Button>
         <Spacer />
         <Input
           size="sm"
@@ -190,59 +195,57 @@ export default function QuestionTable({ session }: { session: any }) {
           onValueChange={onContentFilterChange}
         />
         <Spacer />
-        <ButtonGroup>
-          <Dropdown>
-            <DropdownTrigger>
-              <Button size="sm">Loại câu hỏi</Button>
-            </DropdownTrigger>
-            <DropdownMenu
-              disallowEmptySelection
-              selectionMode="multiple"
-              closeOnSelect={false}
-              selectedKeys={typeFilter}
-              onSelectionChange={setTypeFilter}
-            >
-              {Object.keys(questionType).map((key) => (
-                <DropdownItem key={key} value={key}>
-                  {getKeyValue(questionType, key)}
-                </DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
-          <Dropdown>
-            <DropdownTrigger>
-              <Button size="sm">Độ khó</Button>
-            </DropdownTrigger>
-            <DropdownMenu
-              disallowEmptySelection
-              selectionMode="multiple"
-              closeOnSelect={false}
-              selectedKeys={difficultyFilter}
-              onSelectionChange={setDifficultyFilter}
-            >
-              {Object.keys(difficulty).map((key) => (
-                <DropdownItem key={key} value={key}>
-                  {getKeyValue(difficulty, key)}
-                </DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
-          <Dropdown>
-            <DropdownTrigger>
-              <Button size="sm">Phạm vi</Button>
-            </DropdownTrigger>
-            <DropdownMenu
-              disallowEmptySelection
-              selectionMode="multiple"
-              closeOnSelect={false}
-              selectedKeys={isPublicFilter}
-              onSelectionChange={setIsPublicFilter}
-            >
-              <DropdownItem value="public">Công khai</DropdownItem>
-              <DropdownItem value="private">Riêng tư</DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        </ButtonGroup>
+        <Dropdown>
+          <DropdownTrigger>
+            <Button size="sm">Loại câu hỏi</Button>
+          </DropdownTrigger>
+          <DropdownMenu
+            disallowEmptySelection
+            selectionMode="multiple"
+            closeOnSelect={false}
+            selectedKeys={typeFilter}
+            onSelectionChange={setTypeFilter}
+          >
+            {Object.keys(questionType).map((key) => (
+              <DropdownItem key={key} value={key}>
+                {getKeyValue(questionType, key)}
+              </DropdownItem>
+            ))}
+          </DropdownMenu>
+        </Dropdown>
+        <Dropdown>
+          <DropdownTrigger>
+            <Button size="sm">Độ khó</Button>
+          </DropdownTrigger>
+          <DropdownMenu
+            disallowEmptySelection
+            selectionMode="multiple"
+            closeOnSelect={false}
+            selectedKeys={difficultyFilter}
+            onSelectionChange={setDifficultyFilter}
+          >
+            {Object.keys(difficulty).map((key) => (
+              <DropdownItem key={key} value={key}>
+                {getKeyValue(difficulty, key)}
+              </DropdownItem>
+            ))}
+          </DropdownMenu>
+        </Dropdown>
+        <Dropdown>
+          <DropdownTrigger>
+            <Button size="sm">Phạm vi</Button>
+          </DropdownTrigger>
+          <DropdownMenu
+            disallowEmptySelection
+            selectionMode="multiple"
+            closeOnSelect={false}
+            selectedKeys={isPublicFilter}
+            onSelectionChange={setIsPublicFilter}
+          >
+            <DropdownItem value="public">Công khai</DropdownItem>
+            <DropdownItem value="private">Riêng tư</DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
       </div>
     );
   }, [
@@ -252,48 +255,24 @@ export default function QuestionTable({ session }: { session: any }) {
     onClearContentFilter,
     onContentFilterChange,
     selectedItems,
+    testId,
     typeFilter,
   ]);
 
   function renderActions(item: any) {
-    const deleteQuestionById = deleteQuestion.bind(null, item.id);
+    function handleDeleteQuestion() {
+      removeQuestionsFromTest(testId, [item.id]).then((res) => {
+        if (res.messages.success) {
+          toast.success(res.messages.success);
+          window.location.reload();
+        }
+      });
+    }
 
     return (
-      <Dropdown>
-        <DropdownTrigger>
-          <Button size="sm" color="secondary">
-            :
-          </Button>
-        </DropdownTrigger>
-        <DropdownMenu
-          disabledKeys={
-            item.userId != session.user.id ? ["edit", "delete"] : []
-          }
-        >
-          <DropdownItem
-            key="view"
-            as={Link}
-            href={"/manage/questions/" + item.id}
-          >
-            Xem chi tiết
-          </DropdownItem>
-          <DropdownItem
-            key="edit"
-            as={Link}
-            href={"/manage/questions/" + item.id + "/edit"}
-          >
-            Sửa
-          </DropdownItem>
-          <DropdownItem
-            key="delete"
-            onPress={() => {
-              deleteQuestionById().then(() => window.location.reload());
-            }}
-          >
-            Xóa
-          </DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
+      <Button color="danger" onPress={handleDeleteQuestion}>
+        Xóa
+      </Button>
     );
   }
 
@@ -328,7 +307,7 @@ export default function QuestionTable({ session }: { session: any }) {
             <TableCell>{item.categories}</TableCell>
             <TableCell>
               {item.userId == session.user?.id ? (
-                <Chip color="success">Sở hữu</Chip>
+                <Chip color="success">Sở hứu</Chip>
               ) : null}
             </TableCell>
             <TableCell>

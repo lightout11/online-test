@@ -1,7 +1,7 @@
 "use client";
 
 import SubmitButton from "@/components/submit-button";
-import { createNewUser } from "@/lib/users";
+import { createNewUser } from "@/actions/users";
 import {
   Checkbox,
   CheckboxGroup,

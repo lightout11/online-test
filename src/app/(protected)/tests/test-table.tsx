@@ -3,7 +3,6 @@
 import { deleteTest, deleteTests } from "@/actions/tests";
 import {
   Button,
-  ButtonGroup,
   CircularProgress,
   Dropdown,
   DropdownItem,
@@ -49,7 +48,7 @@ const columns = [
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function TestTable({ session }: { session: any }) {
-  const { data, isLoading } = useSWR("/api/tests", fetcher);
+  const { data, isLoading } = useSWR("/api/examinee/tests", fetcher);
   const [tests, setTests] = useState([]);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "name",
@@ -150,23 +149,8 @@ export default function TestTable({ session }: { session: any }) {
   }, [filteredItems, sortDescriptor]);
 
   const topContent = useMemo(() => {
-    function handleDeleteTests() {
-      deleteTests(Array.from(selectedItems)).then(() =>
-        window.location.reload()
-      );
-    }
-
     return (
       <div>
-        <ButtonGroup>
-          <Button as={Link} href="tests/new" color="primary">
-            Thêm kỳ thi mới
-          </Button>
-          <Button color="danger" onPress={handleDeleteTests}>
-            Xóa các kỳ thi
-          </Button>
-        </ButtonGroup>
-        <Spacer />
         <Input
           value={nameFilter}
           onClear={onClearNameFilter}
@@ -185,16 +169,6 @@ export default function TestTable({ session }: { session: any }) {
           onValueChange={onDurationFilterChange}
         />
         <Spacer />
-        <Input
-          radius="full"
-          type="Date"
-          label="Ngày bắt đầu"
-          labelPlacement="outside-left"
-          value={startDateFilter}
-          onClear={onClearStartDateFilter}
-          onValueChange={onStartDateFilterChange}
-        />
-        <Spacer />
       </div>
     );
   }, [
@@ -202,53 +176,21 @@ export default function TestTable({ session }: { session: any }) {
     nameFilter,
     onClearDurationFilter,
     onClearNameFilter,
-    onClearStartDateFilter,
     onDurationFilterChange,
     onNameFilterChange,
-    onStartDateFilterChange,
-    selectedItems,
-    startDateFilter,
   ]);
 
   function renderActions(item: any) {
-    const deleteTestById = deleteTest.bind(null, item.id);
-
     return (
-      <Dropdown>
-        <DropdownTrigger>
-          <Button color="secondary">Thao tác</Button>
-        </DropdownTrigger>
-        <DropdownMenu
-          disabledKeys={
-            item.userId != session.user.id ? ["edit", "delete"] : []
-          }
-        >
-          <DropdownItem key="view" as={Link} href={"tests/" + item.id}>
-            Xem
-          </DropdownItem>
-          <DropdownItem
-            key="edit"
-            as={Link}
-            href={"tests/" + item.id + "/edit"}
-          >
-            Sửa
-          </DropdownItem>
-          <DropdownItem
-            key="delete"
-            onPress={() => {
-              deleteTestById().then(() => window.location.reload());
-            }}
-          >
-            Xóa
-          </DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
+      <Button as={Link} href={"tests/" + item.id}>
+        Vào thi
+      </Button>
     );
   }
 
   return (
     <Table
-      selectionMode="multiple"
+      selectionMode="none"
       sortDescriptor={sortDescriptor}
       onSortChange={setSortDescriptor}
       topContent={topContent}

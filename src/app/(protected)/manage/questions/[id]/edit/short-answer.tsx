@@ -1,4 +1,4 @@
-import { updateShortAnswerQuestion } from "@/lib/questions";
+import { updateShortAnswerQuestion } from "@/actions/questions";
 import {
   Switch,
   Spacer,

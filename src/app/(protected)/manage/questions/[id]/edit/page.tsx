@@ -1,4 +1,4 @@
-import { getQuestionById } from "@/lib/questions";
+import { getQuestionById } from "@/actions/questions";
 import EditForm from "./edit-form";
 
 export default async function Page({ params }: { params: { id: string } }) {

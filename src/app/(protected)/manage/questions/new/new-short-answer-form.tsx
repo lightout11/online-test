@@ -1,6 +1,6 @@
 "use client";
 
-import { createShortAnswerQuestion } from "@/lib/questions";
+import { createShortAnswerQuestion } from "@/actions/questions";
 import {
   Button,
   Card,

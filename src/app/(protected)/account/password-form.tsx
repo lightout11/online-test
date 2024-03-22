@@ -1,6 +1,6 @@
 "use client";
 
-import { updatePassword } from "@/lib/users";
+import { updatePassword } from "@/actions/users";
 import { Button, Chip, Input, Spacer } from "@nextui-org/react";
 import { useFormState } from "react-dom";
 

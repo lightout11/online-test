@@ -37,6 +37,16 @@ export default function CustomNavbar({ session }: { session: Session }) {
             Kỳ thi
           </Link>
         </NavbarItem>
+        <NavbarItem>
+          <Link href="/tests" color="foreground" aria-current="page">
+            Thi
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link href="/results" color="foreground" aria-current="page">
+            Kết quả
+          </Link>
+        </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem className="lg:flex">

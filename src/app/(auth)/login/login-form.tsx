@@ -1,4 +1,4 @@
-import { login } from "@/lib/login";
+import { login } from "@/actions/login";
 import { Button, Input, Spacer } from "@nextui-org/react";
 
 export default async function LoginForm() {

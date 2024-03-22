@@ -1,7 +1,7 @@
 "use client";
 
 import SubmitButton from "@/components/submit-button";
-import { updateUserInfo } from "@/lib/users";
+import { updateUserInfo } from "@/actions/users";
 import {
   Checkbox,
   CheckboxGroup,

@@ -1,8 +1,11 @@
-import { getTest } from "@/lib/tests";
-import { Card, CardBody, CardHeader } from "@nextui-org/react";
+import { getResultsByTestId } from "@/actions/results";
+import { getTest } from "@/actions/tests";
+import { Card, CardBody, CardHeader, Spacer } from "@nextui-org/react";
+import CustomAccordion from "./custom-accordion";
 
 export default async function Page({ params }: { params: { id: string } }) {
   const test = await getTest(params.id);
+  const results = await getResultsByTestId(params.id);
 
   return (
     <div className="p-2">
@@ -17,6 +20,8 @@ export default async function Page({ params }: { params: { id: string } }) {
           <p>Thời gian làm bài: {test?.duration} phút</p>
         </CardBody>
       </Card>
+      <Spacer />
+      <CustomAccordion />
     </div>
   );
 }
