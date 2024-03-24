@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { examineOpenedAnswer } from "@/libs/judge";
 import prisma from "@/libs/prisma";
 import { redirect } from "next/navigation";
 
@@ -51,9 +52,11 @@ export async function getResultInfo(testId: string) {
   });
 }
 
-export async function submitResult(testId: string, answers: any[]) {
+export async function submitResult(testId: string, answers: any) {
   const session = await auth();
   if (!session) redirect("/login");
+
+  console.log(answers);
 
   const result = await prisma.result.findFirst({
     where: {
@@ -66,29 +69,83 @@ export async function submitResult(testId: string, answers: any[]) {
     return;
   }
 
-  const questions = await prisma.question.findMany({
-    where: {
-      testIds: {
-        has: testId,
-      },
-    },
-  });
-
   let score = 0;
-  for (let i = 0; i < questions.length; i++) {
-    if (questions[i].type === "shortAnswer") {
-      if (questions[i].answer === answers[i]) {
-        score += 1;
+  for (let questionId in answers) {
+    const question = await prisma.question.findFirst({
+      select: {
+        id: true,
+        type: true,
+        answer: true,
+        correctChoice: true,
+        correctChoices: true,
+      },
+      where: {
+        id: questionId,
+      },
+    });
+
+    if (!question) {
+      continue;
+    }
+
+    let isCorrect = false;
+
+    switch (question.type) {
+      case "shortAnswer": {
+        if (question.answer == answers[questionId]) {
+          score++;
+          isCorrect = true;
+        }
+        await prisma.testAnswer.create({
+          data: {
+            result: {
+              connect: {
+                id: result.id,
+              },
+            },
+            question: {
+              connect: {
+                id: questionId,
+              },
+            },
+            answer: answers[questionId],
+            isCorrect
+          }
+        });
+        break;
+      }
+      case "openedAnswer": {
+        const correct = await examineOpenedAnswer(question, answers[questionId]);
+        if (correct) {
+          score++;
+          isCorrect = true;
+        }
+        await prisma.testAnswer.create({
+          data: {
+            result: {
+              connect: {
+                id: result.id,
+              },
+            },
+            question: {
+              connect: {
+                id: questionId,
+              },
+            },
+            answer: answers[questionId],
+            isCorrect
+          }
+        });
+        break;
       }
     }
   }
-
+  
   await prisma.result.update({
     where: {
       id: result.id,
     },
     data: {
-      answers,
       score,
       state: "completed",
     },
@@ -106,7 +163,14 @@ export async function getTestResult(testId: string) {
       id: true,
       score: true,
       state: true,
-      answers: true,
+      testAnswer: {
+        select: {
+          id: true,
+          answer: true,
+          choice: true,
+          choices: true,
+        },
+      },
     },
     where: {
       testId,
@@ -171,7 +235,6 @@ export async function getResultById(id: string) {
       id: true,
       score: true,
       state: true,
-      answers: true,
     },
     where: {
       id,

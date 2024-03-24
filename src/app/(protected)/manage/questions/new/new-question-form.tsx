@@ -10,9 +10,11 @@ import {
   CardBody,
   Spacer,
 } from "@nextui-org/react";
+import NewOpenedAnswerForm from "./new-open-answer-form";
 
 const types = [
   { label: "Trả lời ngắn", value: "shortAnswer" },
+  { label: "Trả lời mở", value: "openedAnswer" },
   { label: "Chọn đáp án đúng", value: "multiChoice" },
   { label: "Chọn nhiều đáp án đúng", value: "multiSelect" },
   { label: "Sắp xếp", value: "ordering" },
@@ -26,6 +28,8 @@ export default function NewQuestionForm() {
     switch (type) {
       case "shortAnswer":
         return <NewShortAnswerForm />;
+      case "openedAnswer":
+        return <NewOpenedAnswerForm />;
       case "multiChoice":
         return <NewMultiChoiceForm />;
     }

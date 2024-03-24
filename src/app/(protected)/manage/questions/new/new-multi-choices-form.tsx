@@ -6,6 +6,7 @@ import {
   Button,
   Input,
   Spacer,
+  Switch,
   Textarea,
 } from "@nextui-org/react";
 import { useState } from "react";
@@ -13,6 +14,7 @@ import { useState } from "react";
 export default function NewMultiChoiceForm() {
   const [choices, setChoices] = useState<string[]>([]);
   const [correctChoice, setCorrectChoices] = useState<any>();
+  const [isPublic, setIsPublic] = useState<any>(false);
 
   function removeChoice(index: any) {
     const newChoices = [...choices];
@@ -28,6 +30,22 @@ export default function NewMultiChoiceForm() {
 
   return (
     <form>
+      <Switch
+        name="isPublic"
+        isSelected={isPublic}
+        value={isPublic}
+        onValueChange={setIsPublic}
+      >
+        Câu hỏi công khai
+      </Switch>
+      <Spacer />
+      <Input
+        isRequired
+        name="categories"
+        label="Danh mục"
+        placeholder="Nhập danh mục"
+      />
+      <Spacer />
       <Textarea label="Câu hỏi" placeholder="Nhập nội dung câu hỏi" />
       <Spacer />
       {choices.map((choice, index) => (
@@ -50,6 +68,8 @@ export default function NewMultiChoiceForm() {
       <Spacer />
       <Autocomplete
         label="Đáp án đúng"
+        name="correctChoice"
+        value={correctChoice}
         defaultItems={choices}
         selectedKey={correctChoice}
         onSelectionChange={setCorrectChoices}

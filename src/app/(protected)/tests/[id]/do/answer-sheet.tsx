@@ -5,6 +5,10 @@ import { Button, Card, CardBody, Input, Spacer } from "@nextui-org/react";
 import { useState } from "react";
 import Countdown from "react-countdown";
 
+interface KeyValue {
+  [key: string]: any;
+}
+
 export default function AnswerSheet({
   testInfo,
   questions,
@@ -12,9 +16,7 @@ export default function AnswerSheet({
   testInfo: any;
   questions: any[];
 }) {
-  const [answers, setAnswers] = useState<any[]>(
-    new Array(questions.length).fill("")
-  );
+  const [answers, setAnswers] = useState<any>({});
   const [tick, setTick] = useState<any>(Date.now() + testInfo.duration * 60000);
 
   function renderQuestion(question: any, index: number) {
@@ -25,8 +27,22 @@ export default function AnswerSheet({
             <Input
               placeholder="Nhập câu trả lời"
               onValueChange={(value) => {
-                const newAnswers = [...answers];
-                newAnswers[index] = value;
+                const newAnswers = { ...answers };
+                newAnswers[question.id] = value;
+                setAnswers(newAnswers);
+              }}
+            />
+          </div>
+        );
+      }
+      case "openedAnswer": {
+        return (
+          <div>
+            <Input
+              placeholder="Trả lời ngắn gọn"
+              onValueChange={(value) => {
+                const newAnswers = { ...answers };
+                newAnswers[question.id] = value;
                 setAnswers(newAnswers);
               }}
             />

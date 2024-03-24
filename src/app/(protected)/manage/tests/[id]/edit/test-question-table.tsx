@@ -66,6 +66,7 @@ const difficulty: any = {
 
 const questionType: any = {
   shortAnswer: "Trả lời ngắn",
+  openedAnswer: "Trả lời mở",
   multiChoice: "Chọn đáp án đúng",
   multiSelect: "Chọn nhiều đáp án đúng",
   ordering: "Sắp xếp",
