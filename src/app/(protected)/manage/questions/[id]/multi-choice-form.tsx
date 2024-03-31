@@ -1,6 +1,6 @@
 "use client";
 
-import { createMultiChoiceQuestion } from "@/actions/questions";
+import { createMultiChoiceQuestion, updateMultiChoiceQuestion } from "@/actions/questions";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -14,10 +14,19 @@ import {
 } from "@nextui-org/react";
 import { useState } from "react";
 
-export default function NewMultiChoiceForm() {
-  const [choices, setChoices] = useState<string[]>([]);
-  const [correctChoice, setCorrectChoice] = useState<any>();
-  const [isPublic, setIsPublic] = useState<any>(false);
+export default function MultiChoiceForm({ question }: { question: any }) {
+  const [enabledForm, setEnabledForm] = useState<any>(false);
+  const [choices, setChoices] = useState<string[]>(question.choices);
+  const [correctChoice, setCorrectChoice] = useState<any>(
+    question.correctChoice
+  );
+  const [isPublic, setIsPublic] = useState<any>(question.isPublic);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [categories, setCategories] = useState<any>(question.categories[0]);
+  const [difficulty, setDifficulty] = useState<any>(question.difficulty);
+  const [content, setContent] = useState<any>(question.content);
 
   function removeChoice(index: any) {
     const newChoices = [...choices];
@@ -32,8 +41,19 @@ export default function NewMultiChoiceForm() {
   };
 
   return (
-    <form action={createMultiChoiceQuestion}>
+    <form action={updateMultiChoiceQuestion}>
+      <input type="hidden" name="id" value={question.id} />
       <Switch
+        name="enabledForm"
+        isSelected={enabledForm}
+        value={enabledForm}
+        onValueChange={setEnabledForm}
+      >
+        Chế độ sửa
+      </Switch>
+      <Spacer />
+      <Switch
+        isDisabled={!enabledForm}
         name="isPublic"
         isSelected={isPublic}
         value={isPublic}
@@ -43,18 +63,24 @@ export default function NewMultiChoiceForm() {
       </Switch>
       <Spacer />
       <Input
+        isDisabled={!enabledForm}
         isRequired
         name="categories"
         label="Danh mục"
         placeholder="Nhập danh mục"
+        value={categories}
+        onValueChange={setCategories}
       />
       <Spacer />
       <RadioGroup
+        isDisabled={!enabledForm}
         isRequired
         name="difficulty"
         label="Độ khó"
         orientation="horizontal"
         defaultValue="easy"
+        value={difficulty}
+        onValueChange={setDifficulty}
       >
         <Radio value="easy">Dễ</Radio>
         <Radio value="medium">Trung Bình</Radio>
@@ -62,14 +88,18 @@ export default function NewMultiChoiceForm() {
       </RadioGroup>
       <Spacer />
       <Textarea
+        isDisabled={!enabledForm}
         name="content"
         label="Câu hỏi"
         placeholder="Nhập nội dung câu hỏi"
+        value={content}
+        onValueChange={setContent}
       />
       <Spacer />
       {choices.map((choice, index) => (
         <div key={index}>
           <Input
+            isDisabled={!enabledForm}
             name="choices"
             value={choice}
             label={"Lựa chọn " + (index + 1)}
@@ -77,17 +107,25 @@ export default function NewMultiChoiceForm() {
             onValueChange={(val) => changeChoice(index, val)}
           />
           <Spacer />
-          <Button color="danger" onPress={() => removeChoice(index)}>
+          <Button
+            isDisabled={!enabledForm}
+            color="danger"
+            onPress={() => removeChoice(index)}
+          >
             Xóa lựa chọn
           </Button>
           <Spacer />
         </div>
       ))}
-      <Button onPress={() => setChoices([...choices, ""])}>
+      <Button
+        isDisabled={!enabledForm}
+        onPress={() => setChoices([...choices, ""])}
+      >
         Thêm lựa chọn
       </Button>
       <Spacer />
       <Autocomplete
+        isDisabled={!enabledForm}
         label="Đáp án đúng"
         name="correctChoice"
         value={correctChoice}
@@ -102,8 +140,8 @@ export default function NewMultiChoiceForm() {
         ))}
       </Autocomplete>
       <Spacer />
-      <Button color="primary" type="submit">
-        Tạo câu hỏi
+      <Button isDisabled={!enabledForm} color="primary" type="submit">
+        Lưu thay đổi
       </Button>
     </form>
   );

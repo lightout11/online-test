@@ -1,7 +1,17 @@
 "use client";
 
 import { submitResult } from "@/actions/results";
-import { Button, Card, CardBody, Input, Spacer } from "@nextui-org/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  Checkbox,
+  CheckboxGroup,
+  Input,
+  Radio,
+  RadioGroup,
+  Spacer,
+} from "@nextui-org/react";
 import { useState } from "react";
 import Countdown from "react-countdown";
 
@@ -18,6 +28,46 @@ export default function AnswerSheet({
 }) {
   const [answers, setAnswers] = useState<any>({});
   const [tick, setTick] = useState<any>(Date.now() + testInfo.duration * 60000);
+
+  function renderMultiSelect(question: any, index: number) {
+    return (
+      <div>
+        <CheckboxGroup
+          onValueChange={(value) => {
+            const newAnswers = { ...answers };
+            newAnswers[question.id] = value;
+            setAnswers(newAnswers);
+          }}
+        >
+          {question.choices.map((choice: any, choiceIndex: number) => (
+            <Checkbox key={choiceIndex} value={choice}>
+              {choice}
+            </Checkbox>
+          ))}
+        </CheckboxGroup>
+      </div>
+    );
+  }
+
+  function renderMultiChoice(question: any, index: number) {
+    return (
+      <div>
+        <RadioGroup
+          onValueChange={(value) => {
+            const newAnswers = { ...answers };
+            newAnswers[question.id] = value;
+            setAnswers(newAnswers);
+          }}
+        >
+          {question.choices.map((choice: any, choiceIndex: number) => (
+            <Radio key={choiceIndex} value={choice}>
+              {choice}
+            </Radio>
+          ))}
+        </RadioGroup>
+      </div>
+    );
+  }
 
   function renderQuestion(question: any, index: number) {
     switch (question.type) {
@@ -48,6 +98,12 @@ export default function AnswerSheet({
             />
           </div>
         );
+      }
+      case "multiChoice": {
+        return renderMultiChoice(question, index);
+      }
+      case "multiSelect": {
+        return renderMultiSelect(question, index);
       }
     }
   }

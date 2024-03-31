@@ -11,6 +11,7 @@ import {
   Spacer,
 } from "@nextui-org/react";
 import NewOpenedAnswerForm from "./new-open-answer-form";
+import NewMultiSelectForm from "./new-multi-select-form";
 
 const types = [
   { label: "Trả lời ngắn", value: "shortAnswer" },
@@ -32,6 +33,8 @@ export default function NewQuestionForm() {
         return <NewOpenedAnswerForm />;
       case "multiChoice":
         return <NewMultiChoiceForm />;
+      case "multiSelect":
+        return <NewMultiSelectForm />
     }
   }
 

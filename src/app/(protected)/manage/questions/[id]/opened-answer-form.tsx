@@ -54,7 +54,7 @@ export default function OpenAnsweredForm({ question }: { question: any }) {
     <Card>
       <CardBody>
         <form action={updateOpenedAnswerQuestion}>
-          <input type="hidden" name="id" value={question.id} />
+        <input type="hidden" name="id" value={question.id} />
           <Switch
             name="enabledForm"
             isSelected={enabledForm}
@@ -63,7 +63,6 @@ export default function OpenAnsweredForm({ question }: { question: any }) {
           >
             Chế độ sửa
           </Switch>
-          <Spacer />
           <Switch
             name="isPublic"
             isSelected={isPublic}

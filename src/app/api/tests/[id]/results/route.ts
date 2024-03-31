@@ -9,7 +9,6 @@ export async function GET(
 ) {
   const session = await auth();
   if (!session) redirect("/login");
-  console.log(params.id);
 
   const results = await prisma.result.findMany({
     select: {

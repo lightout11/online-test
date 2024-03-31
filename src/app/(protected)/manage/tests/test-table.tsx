@@ -123,8 +123,6 @@ export default function TestTable({ session }: { session: any }) {
     }
     if (hasStartDateFilter) {
       filteredRows = filteredRows.filter((row: any) => {
-        console.log(row.startDateTime);
-        console.log(startDateFilter);
         row.startDateTime.toString().includes(startDateFilter);
       });
     }

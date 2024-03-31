@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { examineOpenedAnswer } from "@/libs/judge";
 import prisma from "@/libs/prisma";
 import { redirect } from "next/navigation";
+import { any } from "zod";
 
 export async function getResultInfo(testId: string) {
   const session = await auth();
@@ -56,7 +57,13 @@ export async function submitResult(testId: string, answers: any) {
   const session = await auth();
   if (!session) redirect("/login");
 
-  console.log(answers);
+  const questions = await prisma.question.findMany({
+    where: {
+      testIds: {
+        has: testId,
+      },
+    },
+  });
 
   const result = await prisma.result.findFirst({
     where: {
@@ -69,10 +76,28 @@ export async function submitResult(testId: string, answers: any) {
     return;
   }
 
+  for (let question of questions) {
+    await prisma.testAnswer.create({
+      data: {
+        result: {
+          connect: {
+            id: result.id,
+          },
+        },
+        question: {
+          connect: {
+            id: question.id,
+          },
+        },
+      },
+    });
+  }
+
   let score = 0;
   for (let questionId in answers) {
     const question = await prisma.question.findFirst({
       select: {
+        content: true,
         id: true,
         type: true,
         answer: true,
@@ -96,51 +121,78 @@ export async function submitResult(testId: string, answers: any) {
           score++;
           isCorrect = true;
         }
-        await prisma.testAnswer.create({
+        await prisma.testAnswer.updateMany({
+          where: {
+            resultId: result.id,
+            questionId: question.id,
+          },
           data: {
-            result: {
-              connect: {
-                id: result.id,
-              },
-            },
-            question: {
-              connect: {
-                id: questionId,
-              },
-            },
             answer: answers[questionId],
-            isCorrect
-          }
+            isCorrect,
+          },
         });
         break;
       }
       case "openedAnswer": {
-        const correct = await examineOpenedAnswer(question, answers[questionId]);
+        const correct = await examineOpenedAnswer(
+          question,
+          answers[questionId]
+        );
         if (correct) {
           score++;
           isCorrect = true;
         }
-        await prisma.testAnswer.create({
+        await prisma.testAnswer.updateMany({
+          where: {
+            resultId: result.id,
+            questionId: question.id,
+          },
           data: {
-            result: {
-              connect: {
-                id: result.id,
-              },
-            },
-            question: {
-              connect: {
-                id: questionId,
-              },
-            },
             answer: answers[questionId],
-            isCorrect
-          }
+            isCorrect,
+          },
+        });
+        break;
+      }
+      case "multiChoice": {
+        if (question.correctChoice == answers[questionId]) {
+          score++;
+          isCorrect = true;
+        }
+        await prisma.testAnswer.updateMany({
+          where: {
+            resultId: result.id,
+            questionId: question.id,
+          },
+          data: {
+            choice: answers[questionId],
+            isCorrect,
+          },
+        });
+        break;
+      }
+      case "multiSelect": {
+        const yourChoices = JSON.stringify(answers[questionId].slice().sort());
+        const correctChoices = JSON.stringify(question.correctChoices.slice().sort());
+        if (yourChoices == correctChoices) {
+          score++;
+          isCorrect = true;
+        }
+        await prisma.testAnswer.updateMany({
+          where: {
+            resultId: result.id,
+            questionId: question.id,
+          },
+          data: {
+            choices: answers[questionId],
+            isCorrect,
+          },
         });
         break;
       }
     }
   }
-  
+
   await prisma.result.update({
     where: {
       id: result.id,
@@ -231,7 +283,7 @@ export async function getResultById(id: string) {
   if (!session) redirect("/login");
 
   return await prisma.result.findFirst({
-    select:{
+    select: {
       id: true,
       score: true,
       state: true,

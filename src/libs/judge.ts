@@ -15,9 +15,6 @@ export async function examineOpenedAnswer(question: any, answer: string) {
     model: "gpt-4-turbo-preview",
   });
 
-  console.log("request: " + prompt);
-  console.log("response: " + result.choices[0].message.content);
-
   if (result.choices[0].message.content?.includes("đúng")) {
     return true;
   } else {

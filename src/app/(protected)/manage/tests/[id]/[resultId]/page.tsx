@@ -2,7 +2,14 @@ import { getTestQuestionsAndAnswers } from "@/actions/questions";
 import { getResultById } from "@/actions/results";
 import { getTestAnswersOfResult } from "@/actions/test-answers";
 import { getTestInfo } from "@/actions/tests";
-import { Card, CardBody, Input, Spacer } from "@nextui-org/react";
+import {
+  Card,
+  CardBody,
+  Input,
+  Radio,
+  RadioGroup,
+  Spacer,
+} from "@nextui-org/react";
 
 export default async function Page({
   params,
@@ -53,6 +60,27 @@ export default async function Page({
     );
   }
 
+  function renderMultiChoice(testAnswer: any, index: number) {
+    return (
+      <Card>
+        <CardBody>
+          <p>
+            Câu {index + 1}: {testAnswer.question.content}
+          </p>
+          <RadioGroup isDisabled value={testAnswer.choice}>
+            {testAnswer.question.choices.map(
+              (choice: any, choiceIndex: number) => (
+                <Radio key={choiceIndex} value={choice}>
+                  {choice}
+                </Radio>
+              )
+            )}
+          </RadioGroup>
+        </CardBody>
+      </Card>
+    );
+  }
+
   function renderAnswer(testAnswer: any, index: number) {
     switch (testAnswer.question.type) {
       case "shortAnswer": {
@@ -60,6 +88,9 @@ export default async function Page({
       }
       case "openedAnswer": {
         return renderOpenedAnswer(testAnswer, index);
+      }
+      case "multiChoice": {
+        return renderMultiChoice(testAnswer, index);
       }
     }
   }

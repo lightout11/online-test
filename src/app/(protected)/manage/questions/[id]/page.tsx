@@ -1,6 +1,8 @@
 import { getQuestionById } from "@/actions/questions";
 import ShortAnswer from "./short-answer";
 import OpenAnsweredForm from "./opened-answer-form";
+import MultiChoiceForm from "./multi-choice-form";
+import MultiSelectForm from "./multi-select-form";
 
 export default async function Page({ params }: { params: { id: string } }) {
   const question = await getQuestionById(params.id);
@@ -11,6 +13,10 @@ export default async function Page({ params }: { params: { id: string } }) {
         return <ShortAnswer question={question} />;
       case "openedAnswer":
         return <OpenAnsweredForm question={question} />;
+      case "multiChoice":
+        return <MultiChoiceForm question={question} />;
+      case "multiSelect":
+        return <MultiSelectForm question={question} />;
     }
   }
 

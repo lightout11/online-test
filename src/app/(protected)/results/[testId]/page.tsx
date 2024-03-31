@@ -1,13 +1,51 @@
 import { getTestQuestionsAndAnswers } from "@/actions/questions";
 import { getTestResult } from "@/actions/results";
-import { getTestAnswersOfResult } from "@/actions/test-answers";
+import {
+  getTestAnswersByTestId,
+  getTestAnswersOfResult,
+} from "@/actions/test-answers";
 import { getTestInfo } from "@/actions/tests";
-import { Card, CardBody, Input, Spacer } from "@nextui-org/react";
+import {
+  Card,
+  CardBody,
+  Checkbox,
+  CheckboxGroup,
+  Input,
+  Radio,
+  RadioGroup,
+  Spacer,
+} from "@nextui-org/react";
 
 export default async function Page({ params }: { params: { testId: string } }) {
   const testInfo = await getTestInfo(params.testId);
   const result = await getTestResult(params.testId);
-  const testAnswers = await getTestAnswersOfResult(result?.id as string);
+  const testAnswers = await getTestAnswersByTestId(params.testId);
+
+  function renderMultiSelect(testAnswer: any, index: number) {
+    return (
+      <Card>
+        <CardBody>
+          <p>
+            Câu {index + 1}: {testAnswer.question.content}
+          </p>
+          <CheckboxGroup
+            isDisabled
+            value={testAnswer.choices}
+            color={testAnswer.isCorrect ? "success" : "danger"}
+          >
+            {testAnswer.question.choices.map(
+              (choice: any, choiceIndex: number) => (
+                <Checkbox key={choiceIndex} value={choice}>
+                  {choice}
+                </Checkbox>
+              )
+            )}
+          </CheckboxGroup>
+          <p>Câu trả lời đúng: {testAnswer.question.correctChoices.toString()}</p>
+        </CardBody>
+      </Card>
+    );
+  }
 
   function renderShortAnswer(testAnswer: any, index: number) {
     return (
@@ -49,6 +87,32 @@ export default async function Page({ params }: { params: { testId: string } }) {
     );
   }
 
+  function renderMultiChoice(testAnswer: any, index: number) {
+    return (
+      <Card>
+        <CardBody>
+          <p>
+            Câu {index + 1}: {testAnswer.question.content}
+          </p>
+          <RadioGroup
+            isDisabled
+            value={testAnswer.choice}
+            color={testAnswer.isCorrect ? "success" : "danger"}
+          >
+            {testAnswer.question.choices.map(
+              (choice: any, choiceIndex: number) => (
+                <Radio key={choiceIndex} value={choice}>
+                  {choice}
+                </Radio>
+              )
+            )}
+          </RadioGroup>
+          <p>Câu trả lời đúng: {testAnswer.question.correctChoice}</p>
+        </CardBody>
+      </Card>
+    );
+  }
+
   function renderAnswer(testAnswer: any, index: number) {
     switch (testAnswer.question.type) {
       case "shortAnswer": {
@@ -56,6 +120,12 @@ export default async function Page({ params }: { params: { testId: string } }) {
       }
       case "openedAnswer": {
         return renderOpenedAnswer(testAnswer, index);
+      }
+      case "multiChoice": {
+        return renderMultiChoice(testAnswer, index);
+      }
+      case "multiSelect": {
+        return renderMultiSelect(testAnswer, index);
       }
     }
   }

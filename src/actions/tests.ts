@@ -32,14 +32,11 @@ export async function createNewTest(prevState: any, formData: FormData) {
   const [startHour, startMinute] = (formData.get("startTime") as string).split(
     ":"
   );
-  console.log(parseInt(startHour), parseInt(startMinute));
   startDateTime.setUTCHours(parseInt(startHour), parseInt(startMinute));
-  console.log(startDateTime);
 
   const endDateTime = new Date(formData.get("endDate") as string);
   const [endHour, endMinute] = (formData.get("endTime") as string).split(":");
   endDateTime.setUTCHours(parseInt(endHour), parseInt(endMinute));
-  console.log(endDateTime);
 
   const newTest = {
     name: formData.get("name") as string,
@@ -53,7 +50,6 @@ export async function createNewTest(prevState: any, formData: FormData) {
 
   const validated = testSchema.safeParse(newTest);
   if (!validated.success) {
-    console.log(validated.error.flatten().fieldErrors);
     return { messages: validated.error.flatten().fieldErrors };
   }
 
@@ -149,7 +145,6 @@ export async function updateTest(prevState: any, formData: FormData) {
 
   const validated = testSchema.safeParse(updatedTest);
   if (!validated.success) {
-    console.log(validated.error.flatten().fieldErrors);
     return { messages: validated.error.flatten().fieldErrors };
   }
 
