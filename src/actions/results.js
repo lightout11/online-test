@@ -1,78 +1,80 @@
-"use server"
+"use server";
 
-import { auth } from "@/auth"
-import { examineOpenedAnswer } from "@/libs/judge"
-import prisma from "@/libs/prisma"
-import { redirect } from "next/navigation"
+import { auth } from "@/auth";
+import { examineOpenedAnswer } from "@/libs/judge";
+import prisma from "@/libs/prisma";
+import { redirect } from "next/navigation";
 
 export async function getResultInfo(testId) {
-  const session = await auth()
-  if (!session) redirect("/login")
+  const session = await auth();
+  if (!session) redirect("/api/auth/signin");
 
   const result = await prisma.result.findFirst({
     select: {
       id: true,
       score: true,
-      state: true
+      state: true,
+      startDateTime: true,
     },
     where: {
       testId,
-      userId: session?.user?.id
-    }
-  })
+      userId: session?.user?.id,
+    },
+  });
 
   if (!result) {
     const newResult = await prisma.result.create({
       data: {
         test: {
           connect: {
-            id: testId
-          }
+            id: testId,
+          },
         },
         user: {
           connect: {
-            id: session?.user?.id
-          }
+            id: session?.user?.id,
+          },
         },
-        state: "notStarted"
-      }
-    })
+        state: "notStarted",
+      },
+    });
   }
 
   return await prisma.result.findFirst({
     select: {
       id: true,
       score: true,
-      state: true
+      state: true,
+      startDateTime: true,
     },
     where: {
       testId,
-      userId: session?.user?.id
-    }
-  })
+      userId: session?.user?.id,
+    },
+  });
 }
 
 export async function submitResult(testId, answers) {
-  const session = await auth()
-  if (!session) redirect("/login")
+  const session = await auth();
+  if (!session) redirect("/api/auth/signin");
 
   const questions = await prisma.question.findMany({
     where: {
       testIds: {
-        has: testId
-      }
-    }
-  })
+        has: testId,
+      },
+    },
+  });
 
   const result = await prisma.result.findFirst({
     where: {
       testId,
-      userId: session?.user?.id
-    }
-  })
+      userId: session?.user?.id,
+    },
+  });
 
   if (!result) {
-    return
+    return;
   }
 
   for (let question of questions) {
@@ -80,19 +82,19 @@ export async function submitResult(testId, answers) {
       data: {
         result: {
           connect: {
-            id: result.id
-          }
+            id: result.id,
+          },
         },
         question: {
           connect: {
-            id: question.id
-          }
-        }
-      }
-    })
+            id: question.id,
+          },
+        },
+      },
+    });
   }
 
-  let score = 0
+  let score = 0;
   for (let questionId in answers) {
     const question = await prisma.question.findFirst({
       select: {
@@ -101,112 +103,115 @@ export async function submitResult(testId, answers) {
         type: true,
         answer: true,
         correctChoice: true,
-        correctChoices: true
+        correctChoices: true,
       },
       where: {
-        id: questionId
-      }
-    })
+        id: questionId,
+      },
+    });
 
     if (!question) {
-      continue
+      continue;
     }
 
-    let isCorrect = false
+    let isCorrect = false;
 
     switch (question.type) {
       case "shortAnswer": {
         if (question.answer == answers[questionId]) {
-          score++
-          isCorrect = true
+          score++;
+          isCorrect = true;
         }
         await prisma.testAnswer.updateMany({
           where: {
             resultId: result.id,
-            questionId: question.id
+            questionId: question.id,
           },
           data: {
             answer: answers[questionId],
-            isCorrect
-          }
-        })
-        break
+            isCorrect,
+          },
+        });
+        break;
       }
       case "openedAnswer": {
-        const correct = await examineOpenedAnswer(question, answers[questionId])
+        const correct = await examineOpenedAnswer(
+          question,
+          answers[questionId]
+        );
         if (correct) {
-          score++
-          isCorrect = true
+          score++;
+          isCorrect = true;
         }
         await prisma.testAnswer.updateMany({
           where: {
             resultId: result.id,
-            questionId: question.id
+            questionId: question.id,
           },
           data: {
             answer: answers[questionId],
-            isCorrect
-          }
-        })
-        break
+            isCorrect,
+          },
+        });
+        break;
       }
       case "multiChoice": {
         if (question.correctChoice == answers[questionId]) {
-          score++
-          isCorrect = true
+          score++;
+          isCorrect = true;
         }
         await prisma.testAnswer.updateMany({
           where: {
             resultId: result.id,
-            questionId: question.id
+            questionId: question.id,
           },
           data: {
             choice: answers[questionId],
-            isCorrect
-          }
-        })
-        break
+            isCorrect,
+          },
+        });
+        break;
       }
       case "multiSelect": {
-        const yourChoices = JSON.stringify(answers[questionId].slice().sort())
+        const yourChoices = JSON.stringify(answers[questionId].slice().sort());
         const correctChoices = JSON.stringify(
           question.correctChoices.slice().sort()
-        )
+        );
         if (yourChoices == correctChoices) {
-          score++
-          isCorrect = true
+          score++;
+          isCorrect = true;
         }
         await prisma.testAnswer.updateMany({
           where: {
             resultId: result.id,
-            questionId: question.id
+            questionId: question.id,
           },
           data: {
             choices: answers[questionId],
-            isCorrect
-          }
-        })
-        break
+            isCorrect,
+          },
+        });
+        break;
       }
     }
   }
 
   await prisma.result.update({
     where: {
-      id: result.id
+      id: result.id,
     },
     data: {
       score,
-      state: "completed"
-    }
-  })
+      state: "completed",
+    },
+  });
 
-  redirect("/tests/" + testId)
+  redirect("/tests/" + testId);
 }
 
 export async function getTestResult(testId) {
-  const session = await auth()
-  if (!session) redirect("/login")
+  const session = await auth();
+  if (!session) redirect("/api/auth/signin");
 
   const result = await prisma.result.findFirst({
     select: {
@@ -218,22 +223,22 @@ export async function getTestResult(testId) {
           id: true,
           answer: true,
           choice: true,
-          choices: true
-        }
-      }
+          choices: true,
+        },
+      },
     },
     where: {
       testId,
-      userId: session?.user?.id
-    }
-  })
+      userId: session?.user?.id,
+    },
+  });
 
-  return result
+  return result;
 }
 
 export async function getResultsByUser() {
-  const session = await auth()
-  if (!session) redirect("/login")
+  const session = await auth();
+  if (!session) redirect("/api/auth/signin");
 
   const results = await prisma.result.findMany({
     select: {
@@ -241,21 +246,21 @@ export async function getResultsByUser() {
       score: true,
       test: {
         select: {
-          name: true
-        }
-      }
+          name: true,
+        },
+      },
     },
     where: {
-      userId: session?.user?.id
-    }
-  })
+      userId: session?.user?.id,
+    },
+  });
 
-  return results
+  return results;
 }
 
 export async function getResultsByTestId(testId) {
-  const session = await auth()
-  if (!session) redirect("/login")
+  const session = await auth();
+  if (!session) redirect("/api/auth/signin");
 
   const results = await prisma.result.findMany({
     select: {
@@ -264,30 +269,30 @@ export async function getResultsByTestId(testId) {
       user: {
         select: {
           firstName: true,
-          lastName: true
-        }
-      }
+          lastName: true,
+        },
+      },
     },
     where: {
-      testId
-    }
-  })
+      testId,
+    },
+  });
 
-  return results
+  return results;
 }
 
 export async function getResultById(id) {
-  const session = await auth()
-  if (!session) redirect("/login")
+  const session = await auth();
+  if (!session) redirect("/api/auth/signin");
 
   return await prisma.result.findFirst({
     select: {
       id: true,
       score: true,
-      state: true
+      state: true,
     },
     where: {
-      id
-    }
-  })
+      id,
+    },
+  });
 }

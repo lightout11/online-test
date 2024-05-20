@@ -1,5 +1,5 @@
 {
-  "name": "online-test",
+  "name": "test",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,35 +9,26 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@auth/core": "^0.28.2",
-    "@auth/prisma-adapter": "^1.5.2",
+    "@auth/prisma-adapter": "^2.1.0",
     "@nextui-org/react": "^2.2.10",
-    "@nextui-org/use-infinite-scroll": "^2.1.2",
-    "@prisma/client": "^5.12.0",
-    "@react-stately/data": "^3.11.2",
+    "@prisma/client": "^5.13.0",
     "argon2": "^0.40.1",
-    "framer-motion": "^11.0.24",
-    "jose": "^5.2.3",
-    "next": "^14.1.4",
-    "next-auth": "^5.0.0-beta.16",
-    "openai": "^4.32.1",
+    "framer-motion": "^11.1.8",
+    "next": "14.2.3",
+    "next-auth": "^5.0.0-beta.17",
+    "openai": "^4.42.0",
     "react": "^18",
     "react-countdown": "^2.3.5",
     "react-dom": "^18",
     "react-hot-toast": "^2.4.1",
-    "react-stately": "^3.30.1",
     "swr": "^2.2.5",
-    "zod": "^3.22.4"
+    "zod": "^3.23.6"
   },
   "devDependencies": {
-    "@playwright/test": "^1.43.1",
-    "@types/node": "^20.12.4",
-    "autoprefixer": "^10.0.1",
     "eslint": "^8",
-    "eslint-config-next": "13.5.6",
-    "jsdom": "^24.0.0",
+    "eslint-config-next": "14.2.3",
     "postcss": "^8",
-    "tailwindcss": "^3.3.0"
-  },
-  "packageManager": "yarn@4.1.1"
+    "prisma": "^5.13.0",
+    "tailwindcss": "^3.4.1"
+  }
 }

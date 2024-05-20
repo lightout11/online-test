@@ -1,65 +1,59 @@
-import NextAuth from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import prisma from "./libs/prisma"
-import { verify } from "argon2"
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import prisma from "./libs/prisma";
+import { verify } from "argon2";
 
-export const {
-  handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut
-} = NextAuth({
+export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    CredentialsProvider({
-      name: "Credentials",
+    Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Mật khẩu", type: "password" }
+        password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, request) {
+      authorize: async (credentials) => {
         const user = await prisma.user.findFirst({
           select: {
             id: true,
             email: true,
             passwordHash: true,
             firstName: true,
-            lastName: true
+            lastName: true,
           },
           where: {
-            email: credentials.email
-          }
-        })
-        if (!user) return null
+            email: credentials.email,
+          },
+        });
+        if (!user) return null;
         const isPasswordVerified = await verify(
           user.passwordHash,
           credentials.password
-        )
-        if (!isPasswordVerified) return null
+        );
+        if (!isPasswordVerified) return null;
         else
           return {
             id: user.id,
             email: user.email,
-            name: user.firstName + " " + user.lastName
-          }
-      }
-    })
+            name: user.firstName + " " + user.lastName,
+          };
+      },
+    }),
   ],
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
+        token.id = user.id;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id
+        session.user.id = token.id;
       }
-      return session
-    }
+      return session;
+    },
   },
-  trustHost: true
-})
+  trustHost: true,
+});
